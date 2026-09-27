@@ -180,6 +180,57 @@
           <div id="historyList" class="history-list"></div>
         </section>
 
+        <!-- 5. 제휴 및 문의 (Formspree) -->
+        <section class="card no-print" style="padding: 0; overflow: hidden; margin-top: 16px;">
+          <button id="contactAccordionBtn" class="accordion-toggle" type="button">
+            <div>
+              <span>✉️ 제휴 및 비즈니스 문의</span>
+              <span class="badge" style="margin-left: 8px; font-size: 11px; padding: 2px 8px; border-radius: 9999px; background: rgba(59, 130, 246, 0.15); color: #3b82f6;">CONTACT</span>
+            </div>
+            <span id="contactArrow">▼</span>
+          </button>
+
+          <div id="contactAccordionBody" class="accordion-body" style="display: none;">
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
+              로또 번호 추천기와의 제휴, 광고, 기능 제안 등 궁금한 점이 있으시다면 언제든 편하게 메시지를 남겨주세요.
+            </p>
+
+            <form id="partnershipForm" action="https://formspree.io/f/meaorbjz" method="POST" class="contact-form">
+              <div class="form-group">
+                <label for="contactName" class="form-label">이름 또는 기업명 <span style="color: #ef4444;">*</span></label>
+                <input type="text" id="contactName" name="name" class="form-input" placeholder="홍길동 또는 회사명" required />
+              </div>
+
+              <div class="form-group">
+                <label for="contactEmail" class="form-label">회신받을 이메일 주소 <span style="color: #ef4444;">*</span></label>
+                <input type="email" id="contactEmail" name="email" class="form-input" placeholder="example@email.com" required />
+              </div>
+
+              <div class="form-group">
+                <label for="contactSubject" class="form-label">문의 유형</label>
+                <select id="contactSubject" name="subject" class="form-input">
+                  <option value="제휴 및 협업">비즈니스 제휴 / 협업</option>
+                  <option value="광고 문의">광고 / 스폰서십 문의</option>
+                  <option value="기능 제안 및 개선">기능 제안 및 피드백</option>
+                  <option value="기타 문의">기타 일반 문의</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="contactMessage" class="form-label">문의 내용 <span style="color: #ef4444;">*</span></label>
+                <textarea id="contactMessage" name="message" rows="4" class="form-input form-textarea" placeholder="문의하실 내용을 자유롭게 작성해 주세요." required></textarea>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; margin-top: 14px;">
+                <button type="submit" id="btnSubmitContact" class="btn-primary" style="max-width: none; width: 100%;">
+                  <span>🚀</span> 문의 내용 전송하기
+                </button>
+              </div>
+              <div id="contactStatus" class="contact-status"></div>
+            </form>
+          </div>
+        </section>
+
         <!-- 공식 색상 및 정보 안내 -->
         <section class="info-card no-print">
           <strong>동행복권 로또 6/45 공식 볼 색상 기준:</strong>

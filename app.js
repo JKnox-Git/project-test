@@ -492,6 +492,68 @@
     window.print();
   });
 
+  // 제휴 문의 아코디언 토글 & 비동기 AJAX 폼 제출
+  const contactAccordionBtn = document.getElementById('contactAccordionBtn');
+  const contactAccordionBody = document.getElementById('contactAccordionBody');
+  const contactArrow = document.getElementById('contactArrow');
+  const partnershipForm = document.getElementById('partnershipForm');
+  const btnSubmitContact = document.getElementById('btnSubmitContact');
+  const contactStatus = document.getElementById('contactStatus');
+  let isContactOpen = false;
+
+  if (contactAccordionBtn && contactAccordionBody) {
+    contactAccordionBtn.addEventListener('click', function () {
+      isContactOpen = !isContactOpen;
+      contactAccordionBody.style.display = isContactOpen ? 'block' : 'none';
+      if (contactArrow) contactArrow.textContent = isContactOpen ? '▲' : '▼';
+    });
+  }
+
+  if (partnershipForm) {
+    partnershipForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      btnSubmitContact.disabled = true;
+      btnSubmitContact.innerHTML = '<span>⏳</span> 전송 중입니다...';
+      contactStatus.className = 'contact-status';
+      contactStatus.style.display = 'none';
+
+      const formData = new FormData(partnershipForm);
+
+      fetch('https://formspree.io/f/meaorbjz', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+      .then(function (response) {
+        if (response.ok) {
+          contactStatus.textContent = '✅ 제휴 문의가 성공적으로 전송되었습니다! 확인 후 기재해주신 이메일로 신속히 답변드리겠습니다.';
+          contactStatus.className = 'contact-status success';
+          partnershipForm.reset();
+          showToast('문의가 정상적으로 접수되었습니다.');
+        } else {
+          return response.json().then(function (data) {
+            let errorMsg = '전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+            if (data && data.errors && data.errors.length > 0) {
+              errorMsg = data.errors.map(function (err) { return err.message; }).join(', ');
+            }
+            contactStatus.textContent = '❌ ' + errorMsg;
+            contactStatus.className = 'contact-status error';
+          });
+        }
+      })
+      .catch(function () {
+        contactStatus.textContent = '❌ 네트워크 오류가 발생했습니다. 인터넷 연결을 확인해 주세요.';
+        contactStatus.className = 'contact-status error';
+      })
+      .finally(function () {
+        btnSubmitContact.disabled = false;
+        btnSubmitContact.innerHTML = '<span>🚀</span> 문의 내용 전송하기';
+      });
+    });
+  }
+
   // 스페이스바 키보드 단축키
   window.addEventListener('keydown', function (e) {
     if (e.code === 'Space' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
