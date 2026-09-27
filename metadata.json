@@ -1,0 +1,6 @@
+{
+  "name": "로또 6/45 번호 추천기",
+  "description": "웹브라우저에서 간편하게 행운의 로또 번호를 추첨하고 관리하는 추천기",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
