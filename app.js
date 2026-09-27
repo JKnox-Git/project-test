@@ -82,6 +82,15 @@
       themeIcon.textContent = '🌙';
       themeText.textContent = '다크 모드';
     }
+
+    // 테마 변경 시 Disqus 새로고침(테마 동기화)
+    if (window.DISQUS && typeof window.DISQUS.reset === 'function') {
+      try {
+        window.DISQUS.reset({ reload: true });
+      } catch (e) {
+        // ignore
+      }
+    }
   }
 
   themeToggleBtn.addEventListener('click', function () {
