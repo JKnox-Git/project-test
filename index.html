@@ -4,17 +4,209 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>로또 6/45 번호 추천기</title>
-    <meta name="description" content="웹브라우저에서 간편하게 행운의 로또 번호를 추첨하고 관리하는 추천기" />
+    <meta name="description" content="웹브라우저에서 간편하게 로또 번호를 추첨하고 관리하는 추천기" />
     <meta property="og:title" content="로또 6/45 번호 추천기" />
-    <meta property="og:description" content="웹브라우저에서 간편하게 행운의 로또 번호를 추첨하고 관리하는 추천기" />
+    <meta property="og:description" content="웹브라우저에서 간편하게 로또 번호를 추첨하고 관리하는 추천기" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <!-- 한글 Pretendard 웹폰트 -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <link rel="stylesheet" as="style" crossOrigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- 순수 CSS 스타일시트 연결 -->
+    <link rel="stylesheet" href="/style.css" />
   </head>
-  <body class="bg-slate-50 text-slate-800 antialiased font-sans">
-    <div id="root"></div>
+  <body>
+    <!-- 토스트 알림 메시지 -->
+    <div id="toast" class="toast"></div>
+
+    <div class="container">
+      <!-- 헤더 & 테마 전환 -->
+      <header class="no-print">
+        <div class="top-bar">
+          <button id="themeToggleBtn" class="theme-toggle-btn" type="button" aria-label="화면 모드 전환">
+            <span id="themeIcon">🌙</span>
+            <span id="themeText">다크 모드</span>
+          </button>
+        </div>
+
+        <span class="badge">Lotto 6/45 Lucky Number Generator</span>
+        <h1>로또 6/45 번호 추천기</h1>
+        <p class="subtitle">클릭 한 번으로 1부터 45까지 최적의 행운 조합을 추천받으세요</p>
+
+        <!-- 탭 전환 버튼 (1게임 vs 5게임 1장) -->
+        <div class="tab-switcher">
+          <button id="tabSingle" class="tab-btn active" type="button">1게임 추천</button>
+          <button id="tabBundle" class="tab-btn" type="button">5게임 세트 (1장)</button>
+        </div>
+      </header>
+
+      <!-- 1. 단일 모드 카드 -->
+      <main>
+        <section id="singleCard" class="card">
+          <!-- 6개 로또 볼 영역 -->
+          <div id="singleBalls" class="balls-display"></div>
+
+          <!-- 추첨 & 복사 버튼 -->
+          <div class="actions no-print">
+            <button id="btnRollSingle" class="btn-primary" type="button">
+              <span>🎲</span> 행운 번호 추첨하기
+            </button>
+            <button id="btnCopySingle" class="btn-secondary" type="button">
+              <span>📋</span> 번호 복사
+            </button>
+          </div>
+          <p class="hint-text no-print">
+            <kbd>Space</kbd> 키를 누르면 바로 다시 추첨됩니다
+          </p>
+
+          <!-- 번호 조합 통계 분석 -->
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-title">총합 (Sum)</span>
+              <span id="statSum" class="stat-value">-</span>
+              <span class="stat-sub">통상 100~175</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-title">홀짝 비율</span>
+              <span id="statOddEven" class="stat-value">-</span>
+              <span class="stat-sub">홀 : 짝</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-title">저고 비율</span>
+              <span id="statLowHigh" class="stat-value">-</span>
+              <span class="stat-sub">1~22 : 23~45</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-title">연속 번호</span>
+              <span id="statConsecutive" class="stat-value">-</span>
+              <span class="stat-sub">연속쌍 확인</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. 5게임 세트 모드 카드 (실제 복권 1장 형태) -->
+        <section id="bundleCard" class="card" style="display: none;">
+          <div class="slip-header">
+            <div class="slip-title">
+              <span>LOTTO 6/45 SLIP</span>
+              <h3>행운의 복권 1장 (5게임)</h3>
+            </div>
+            <div class="slip-actions no-print">
+              <button id="btnRollBundle" class="btn-primary btn-sm" type="button">🔄 전체 재추첨</button>
+              <button id="btnCopyBundle" class="btn-secondary btn-sm" type="button">📋 전체 복사</button>
+              <button id="btnPrintBundle" class="btn-secondary btn-sm" type="button" title="영수증 인쇄">🖨️</button>
+            </div>
+          </div>
+
+          <!-- A, B, C, D, E 5개 게임 목록 -->
+          <div id="bundleList" class="bundle-list"></div>
+
+          <!-- 하단 바코드 디자인 -->
+          <div class="barcode-wrapper">
+            <div class="barcode">
+              <div class="barcode-line" style="width: 2px;"></div>
+              <div class="barcode-line" style="width: 4px;"></div>
+              <div class="barcode-line" style="width: 1px;"></div>
+              <div class="barcode-line" style="width: 3px;"></div>
+              <div class="barcode-line" style="width: 2px;"></div>
+              <div class="barcode-line" style="width: 5px;"></div>
+              <div class="barcode-line" style="width: 1px;"></div>
+              <div class="barcode-line" style="width: 2px;"></div>
+              <div class="barcode-line" style="width: 4px;"></div>
+              <div class="barcode-line" style="width: 2px;"></div>
+              <div class="barcode-line" style="width: 3px;"></div>
+              <div class="barcode-line" style="width: 1px;"></div>
+              <div class="barcode-line" style="width: 4px;"></div>
+              <div class="barcode-line" style="width: 2px;"></div>
+              <div class="barcode-line" style="width: 3px;"></div>
+              <div class="barcode-line" style="width: 1px;"></div>
+              <div class="barcode-line" style="width: 4px;"></div>
+              <div class="barcode-line" style="width: 2px;"></div>
+              <div class="barcode-line" style="width: 3px;"></div>
+            </div>
+            <p class="barcode-sub">동행복권 로또 6/45 규격 · 1게임당 1,000원 상당</p>
+          </div>
+        </section>
+
+        <!-- 3. 맞춤 번호 필터 (포함수 / 제외수) -->
+        <section class="card no-print" style="padding: 0; overflow: hidden;">
+          <button id="filterAccordionBtn" class="accordion-toggle" type="button">
+            <div>
+              <span>⚙️ 맞춤 번호 필터 (포함수 / 제외수)</span>
+              <span id="filterCountBadge" class="badge" style="display: none; margin-left: 8px; font-size: 11px; padding: 2px 8px; border-radius: 9999px; background: rgba(245, 158, 11, 0.15);"></span>
+            </div>
+            <span id="filterArrow">▼</span>
+          </button>
+
+          <div id="filterAccordionBody" class="accordion-body" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 12px; color: var(--text-muted);">
+                꼭 포함하고 싶은 번호(최대 5개) 또는 제외하고 싶은 번호를 지정하세요.
+              </span>
+              <button id="btnResetFilter" type="button" style="background: none; border: none; font-size: 12px; color: #ef4444; cursor: pointer; text-decoration: underline;">
+                필터 초기화
+              </button>
+            </div>
+
+            <!-- 포함수 / 제외수 박스 -->
+            <div class="filter-boxes">
+              <div class="filter-box include-box">
+                <span class="box-title">꼭 포함할 번호 (최대 5개)</span>
+                <div id="includeTags" class="tag-list"></div>
+              </div>
+              <div class="filter-box exclude-box">
+                <span class="box-title">제외할 번호</span>
+                <div id="excludeTags" class="tag-list"></div>
+              </div>
+            </div>
+
+            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
+              번호를 클릭하면 [포함: 초록] ➔ [제외: 빨강] ➔ [해제] 순으로 변경됩니다.
+            </div>
+
+            <!-- 1~45 인터랙티브 번호판 -->
+            <div id="numberGrid" class="number-grid"></div>
+          </div>
+        </section>
+
+        <!-- 4. 최근 추천 기록 (히스토리) -->
+        <section id="historyCard" class="card no-print" style="display: none;">
+          <div class="history-header">
+            <h4>📜 최근 추천 기록 <span id="historyCount"></span></h4>
+            <button id="btnClearHistory" type="button" style="background: none; border: none; font-size: 12px; color: var(--text-muted); cursor: pointer;">
+              기록 지우기
+            </button>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </section>
+
+        <!-- 공식 색상 및 정보 안내 -->
+        <section class="info-card no-print">
+          <strong>동행복권 로또 6/45 공식 볼 색상 기준:</strong>
+          <div class="color-guide">
+            <span class="guide-pill"><span class="guide-dot ball-yellow"></span> 1 ~ 10 (노랑)</span>
+            <span class="guide-pill"><span class="guide-dot ball-blue"></span> 11 ~ 20 (파랑)</span>
+            <span class="guide-pill"><span class="guide-dot ball-red"></span> 21 ~ 30 (빨강)</span>
+            <span class="guide-pill"><span class="guide-dot ball-gray"></span> 31 ~ 40 (회색)</span>
+            <span class="guide-pill"><span class="guide-dot ball-green"></span> 41 ~ 45 (초록)</span>
+          </div>
+          <div style="margin-top: 10px; display: flex; justify-content: space-between; font-size: 11px;">
+            <span>추첨시간: 매주 토요일 오후 8시 35분 (MBC)</span>
+            <a href="https://dhlottery.co.kr" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none; font-weight: 600;">
+              동행복권 공식 홈페이지 ↗
+            </a>
+          </div>
+        </section>
+      </main>
+
+      <footer class="no-print">
+        본 추천기는 무작위 확률 기반으로 생성되며 당첨을 보장하지 않습니다. 건전한 복권 문화를 응원합니다.
+      </footer>
+    </div>
+
+    <!-- 순수 JavaScript 로직 연결 -->
+    <script src="/app.js"></script>
+    <!-- 환경 빌드 호환용 엔트리포인트 -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
